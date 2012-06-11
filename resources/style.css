@@ -1,0 +1,40 @@
+
+.in_prompt_number { 
+/*    color: navy;*/
+    color: darkGray;
+    font-family: monospace;
+}
+
+.out_prompt_number {
+    color: darkGray; 
+/*    color: darkRed;*/
+    font-family: monospace;
+}
+
+.code { 
+    font-family: monospace; 
+}
+
+.codecell { 
+}
+
+.output_stream { 
+    font-family: monospace; 
+}
+
+.display_data {
+}
+
+.pyout { 
+    font-family: Monospace;
+}
+
+.pyerr { 
+    font-family: Monospace;
+    color: red;
+}
+
+
+body {
+font-family: 'PT Serif', serif;
+}
