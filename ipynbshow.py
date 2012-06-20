@@ -7,21 +7,53 @@ from PySide.QtWebKit import *
 from IPython.nbformat.v2.nbjson import JSONReader
 import nbtools.renderer as renderer
 
+STYLE = '''
+<style>
+.in_prompt_number { 
+    color: darkGray;
+    font-family: monospace;
+}
+
+.out_prompt_number {
+    color: darkGray; 
+    font-family: monospace;
+}
+
+.code { 
+    font-family: monospace; 
+}
+
+.codecell { 
+}
+
+.output_stream { 
+    font-family: monospace; 
+}
+
+.display_data {
+}
+
+.pyout { 
+    font-family: Monospace;
+}
+
+.pyerr { 
+    font-family: Monospace;
+    color: red;
+}
+
+body {
+font-family: Helvetica, Arial, sans-serif;
+}
+</style>
+'''
+
 class Form(QDialog):
     
     def __init__(self, parent=None):
         super(Form, self).__init__(parent)
         self.setWindowTitle("Notebook")
         self.webview = QWebView()
-        self.webview.settings().setAttribute(QWebSettings.LocalContentCanAccessRemoteUrls, True)
-        self.webview.settings().setAttribute(QWebSettings.LocalContentCanAccessFileUrls, True)
-        self.webview.settings().setAttribute(QWebSettings.JavascriptEnabled, True)
-        self.webview.settings().setAttribute(QWebSettings.JavascriptCanOpenWindows, True)
-        self.webview.settings().setAttribute(QWebSettings.JavascriptCanAccessClipboard, True)
-        self.webview.settings().setAttribute(QWebSettings.LocalStorageEnabled, True)
-        self.webview.settings().setAttribute(QWebSettings.PluginsEnabled, True)
-        self.webview.settings().setAttribute(QWebSettings.JavaEnabled, True)
-        self.webview.settings().setAttribute(QWebSettings.DeveloperExtrasEnabled, True)
 
         layout = QVBoxLayout()
         layout.addWidget(self.webview)
@@ -41,7 +73,7 @@ if __name__ == '__main__':
     nbreader = JSONReader()
     nb = nbreader.reads(open(nbfile).read())
 
-    html_renderer = renderer.HtmlRenderer()
+    html_renderer = renderer.HtmlRenderer(use_mathjax=False, additional_style=STYLE)
     html = html_renderer.render(nb)
 
     app = QApplication(sys.argv)

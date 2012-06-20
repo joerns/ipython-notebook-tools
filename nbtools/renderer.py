@@ -18,8 +18,28 @@ class IPyNotebookRenderer:
 
 
 class HtmlRenderer:
-    def __init__(self):
-        self.html_formatter = HtmlFormatter(style="friendly")
+    def __init__(self, use_mathjax=True, pygments_style="friendly", additional_style=None):
+        self.html_formatter = HtmlFormatter(style=pygments_style)
+        self.use_mathjax = use_mathjax
+
+        if use_mathjax:
+            self.MATHJAX = '''
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['$$','$$']]}});
+</script>
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" charset="utf-8"></script>
+'''
+        else:
+            self.MATHJAX = ''
+
+        if additional_style:
+            self.additional_style = additional_style
+        else:
+            self.additional_style = '''
+<link rel="stylesheet" type="text/css" href="style.css" />
+<link href='http://fonts.googleapis.com/css?family=PT+Serif' rel='stylesheet' type='text/css' />
+'''
+            
 
         self.PAGE_HTML = '''<!DOCTYPE html>
 <html>
@@ -28,13 +48,9 @@ class HtmlRenderer:
 
 <title>__TITLE__</title>
 
-<link rel="stylesheet" type="text/css" href="style.css" />
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['$$','$$']]}});
-</script>
-<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" charset="utf-8"></script>
+__MATHJAX__
 
-<link href='http://fonts.googleapis.com/css?family=PT+Serif' rel='stylesheet' type='text/css'>
+__STYLE__
 
 <style>
 
@@ -86,7 +102,10 @@ __HIGHLIGHTCODE__
 __CONTENTS__
 </body>
 </html>
-'''.replace("__HIGHLIGHTCODE__", self.html_formatter.get_style_defs('.highlight'))
+'''
+        self.PAGE_HTML = self.PAGE_HTML.replace("__HIGHLIGHTCODE__", self.html_formatter.get_style_defs('.highlight'))
+        self.PAGE_HTML = self.PAGE_HTML.replace("__MATHJAX__", self.MATHJAX)
+        self.PAGE_HTML = self.PAGE_HTML.replace("__STYLE__", self.additional_style)
 
         self.CODE_HTML = '''<div class="codecell">
 <div class="in_prompt_number">IN [__PROMPT_NUMBER__]:</div>
