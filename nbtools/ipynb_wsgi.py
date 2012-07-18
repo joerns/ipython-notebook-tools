@@ -10,9 +10,13 @@ from IPython.nbformat.v2.nbjson import JSONReader
 import renderer
 
 class NotebookWSGI:
-    def __init__(self, notebook_dir, enable_index):
+    def __init__(self, notebook_dir, enable_index, style=None):
+        # config options
+        self.notebook_dir = os.path.abspath(notebook_dir)
+        self.enable_index = enable_index
+
         # constants
-        self.RENDERERS = { 'html': renderer.HtmlRenderer(),
+        self.RENDERERS = { 'html': renderer.HtmlRenderer(additional_style=style),
                            'ipynb': renderer.IPyNotebookRenderer() }
         self.DEFAULT_OUTPUT_FORMAT = 'html'
         self.CONTENT_TYPE = { 'html': 'text/html',
@@ -20,11 +24,6 @@ class NotebookWSGI:
                               }
         
         self.nbreader = JSONReader()
-
-        # config options
-        self.notebook_dir = os.path.abspath(notebook_dir)
-        self.enable_index = enable_index
-
 
     def __call__(self, environment, start_response):
         path_info = environment.get('PATH_INFO', '')
@@ -126,10 +125,20 @@ class NotebookWSGI:
 if __name__ == '__main__':
     from wsgiref.simple_server import make_server   
 
-    notebook_wsgi = NotebookWSGI(notebook_dir=os.getcwd(), enable_index=True)
+    import sys
+    if len(sys.argv) == 2:
+        wd = sys.argv[1]
+    else:
+        wd = os.getcwd()
 
-    httpd = make_server('localhost', 8008, notebook_wsgi)
+    try:
+        style = "<style>\n" + open(os.path.join(wd, "style.css")).read() + "\n</style>\n"
+    except:
+        style = None
 
+    notebook_wsgi = NotebookWSGI(notebook_dir=wd, enable_index=True, style=style)
+
+    httpd = make_server('localhost', 8080, notebook_wsgi)
     httpd.serve_forever()
         
     
